@@ -35,4 +35,12 @@ public class AuthInfo implements Serializable {
      * OIDC login by WeChat, does not require a password.
      */
     private String wechat;
+
+     /**
+     * Checks if the authentication information is valid.
+     *
+     * @return true if the authentication information is valid
+     */
+
+
 }

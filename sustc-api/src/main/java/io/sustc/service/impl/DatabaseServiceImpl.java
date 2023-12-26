@@ -1,5 +1,6 @@
 package io.sustc.service.impl;
 
+import io.sustc.dto.AuthInfo;
 import io.sustc.dto.DanmuRecord;
 import io.sustc.dto.UserRecord;
 import io.sustc.dto.VideoRecord;
@@ -37,9 +38,88 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public List<Integer> getGroupMembers() {
         //TODO: replace this with your own student IDs in your group
-        return Arrays.asList(12210000, 12210001, 12210002);
+        return Arrays.asList(12213012, 12213012, 12213012);
+    }
+    ////////////////////////////////////////////
+
+
+
+//    private final String url = "jdbc:postgresql://localhost:5432/postgres";
+//    private final String username = "mker";
+//    private final String password = "123456";
+
+    //    private void configureDataSource(String url, String username, String password) {
+//        dataSource.
+//    }
+    private void importDanmuData(List<DanmuRecord> danmuRecords) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement statement = conn.prepareStatement(
+                     "INSERT INTO Danmu_base (BvID, UserID, DisplayTime, Content, PostTime) VALUES (?, ?, ?, ?, ?)"
+             )) {
+            for (DanmuRecord danmuRecord : danmuRecords) {
+                statement.setString(1, danmuRecord.getBv());
+                statement.setLong(2, danmuRecord.getMid());
+                statement.setFloat(3, danmuRecord.getTime());
+                statement.setString(4, danmuRecord.getContent());
+                statement.setTimestamp(5, danmuRecord.getPostTime());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    private void importUserData(List<UserRecord> userRecords) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement statement = conn.prepareStatement(
+                     "INSERT INTO User_base (UserID, Name, Sex, Birthday, Level, Coin, Sign, Identity, Password, QQ, WeChat) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             )) {
+            for (UserRecord userRecord : userRecords) {
+                statement.setLong(1, userRecord.getMid());
+                statement.setString(2, userRecord.getName());
+                statement.setString(3, userRecord.getSex());
+                statement.setString(4, userRecord.getBirthday());
+                statement.setShort(5, userRecord.getLevel());
+                statement.setInt(6, userRecord.getCoin());
+                statement.setString(7, userRecord.getSign());
+                statement.setString(8, userRecord.getIdentity().name());
+                statement.setString(9, userRecord.getPassword());
+                statement.setString(10, userRecord.getQq());
+                statement.setString(11, userRecord.getWechat());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void importVideoData(List<VideoRecord> videoRecords) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement statement = conn.prepareStatement(
+                     "INSERT INTO Video_base (BvID, Title, OwnerID, OwnerName, CommitTime, ReviewTime, PublicTime, " +
+                             "Duration, Description, Reviewer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             )) {
+            for (VideoRecord videoRecord : videoRecords) {
+                statement.setString(1, videoRecord.getBv());
+                statement.setString(2, videoRecord.getTitle());
+                statement.setLong(3, videoRecord.getOwnerMid());
+                statement.setString(4, videoRecord.getOwnerName());
+                statement.setTimestamp(5, videoRecord.getCommitTime());
+                statement.setTimestamp(6, videoRecord.getReviewTime());
+                statement.setTimestamp(7, videoRecord.getPublicTime());
+                statement.setFloat(8, videoRecord.getDuration());
+                statement.setString(9, videoRecord.getDescription());
+                statement.setLong(10, videoRecord.getReviewer());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    ////////////////////////////////////////////
     @Override
     public void importData(
             List<DanmuRecord> danmuRecords,
@@ -47,6 +127,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             List<VideoRecord> videoRecords
     ) {
         // TODO: implement your import logic
+//        configureDataSource(url, username, password);
+        importUserData(userRecords);
+        importVideoData(videoRecords);
+        importDanmuData(danmuRecords);
         System.out.println(danmuRecords.size());
         System.out.println(userRecords.size());
         System.out.println(videoRecords.size());
@@ -102,4 +186,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             throw new RuntimeException(e);
         }
     }
+    //////////////////////////////////////////////////////
+
+
+
+
+
 }
